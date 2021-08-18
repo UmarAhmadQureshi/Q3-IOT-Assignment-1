@@ -1,9 +1,21 @@
-Async/Await allows you to have tasks that can yield their "turn" to another task if they are waiting for something to happen. Generally that is IO as mentioned in the other comment.
+## Tasks
 
-Those tasks can be scheduled by the asynchronous runtime on a single thread, or more. But parallelism is not a necessary element of it. You might have different tasks that are all in progress, but are not necessarily actively running at the same time, rather taking turns with some waiting in between.
+Async/Await is used to create tasks that can "give up" their "turn" to another task if they are waiting for something. These tasks can be scheduled by a single thread or more.
+These tasks are not necessarily parallel but rather taking their turns one after another. Tasks are provided in rust by the language library and are transparent to the OS.
 
-Threads mean having multiple threads running at the same time, in parallel. Generally, that means something running at the same time as something else is running.
+## Threads  
 
-If you read a file in a thread(in a non asynchronous way) the thread is occupied until the file is read. If you read the file in an asynchronous manner, the thread can have other tasks scheduled on it while the file is being read.
+Threads mean having multiple runtimes running in parallel. Generally, that means that something is running at the same time when something else is running.
+Threads are supported by the OS and underlying infrastructure. The underlying infrastructure recognizes and ensures their existence.
+Unlike tasks threads have a significant coordination overhead which consumes resources.
 
-Async/await and threads/atomics are not exclusive. In fact, asynchronous runtimes are often used with a threadpool that schedules those tasks onto multiple threads. So you can have the benefits of both quite easily. You will still need atomics to some extend(preferably ones optimized for async use) if you share data between tasks, unless they are shared only between tasks being scheduled on a single thread maybe.
+Async/await and threads/atomics are not exclusive. In fact multiple async tasks are often scheduled in different parallel threads. So we can benefit from both technologies easily.
+
+## Example code
+The example program two functions are used to generate 100 random numbers.
+These functions are timed and from their results it can be seen that the difference between the two technologies is quite significant.
+
+![Comparison Image](./Screenshot.png)
+
+The Async/Await technique generated these numbers an order of magnitude faster than the Thread/atomics technique.
+This is mainly due to the context switching/maintenance overhead associated with the Thread technology. comparatively the Async technique worked in a single thread and utilized minimal maintenance overhead resulting in significant gains. 
